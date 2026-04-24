@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resultados Elección</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; min-height: 100vh; padding: 32px 16px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  .page-title-wrap { background: #e2e7ef; border: 1px solid #c5cdd8; border-radius: 8px 8px 0 0; padding: 14px 20px; text-align: center; }
+  .page-title-wrap input { font-size: 15px; font-weight: 600; color: #1a2540; text-align: center; background: transparent; border: none; width: 100%; outline: none; cursor: pointer; }
+  .page-title-wrap input:focus { background: #fff; border-radius: 4px; }
+
+  .card { background: #fff; border: 1px solid #c5cdd8; border-top: none; border-radius: 0 0 8px 8px; padding: 20px; margin-bottom: 24px; }
+
+  .top-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .hint { font-size: 11px; color: #999; }
+  .btn { font-size: 12px; padding: 6px 14px; border-radius: 6px; border: 1px solid #b0bac8; background: #f4f6f8; color: #444; cursor: pointer; white-space: nowrap; }
+  .btn:hover { background: #e8ecf0; }
+  .btn-primary { background: #0B1D3A; color: #fff; border-color: #0B1D3A; }
+  .btn-primary:hover { background: #1a3060; }
+  .btn-accent { background: #1a5fa8; color: #fff; border-color: #1a5fa8; }
+  .btn-accent:hover { background: #154d8c; }
+
+  .group-config { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .group-config-item { display: flex; align-items: center; gap: 8px; background: #f4f6f8; border: 1px solid #d0d8e2; border-radius: 6px; padding: 7px 14px; }
+  .group-config-item label { font-size: 12px; color: #555; font-weight: 500; }
+  .group-config-item .auto-val { font-size: 13px; font-weight: 700; color: #1a5fa8; min-width: 28px; }
+  .group-config-item input[type=number] { width: 70px; font-size: 12px; padding: 3px 8px; border: 1px solid #b0bac8; border-radius: 5px; color: #1a2540; }
+  .group-config-item .ovr-label { font-size: 10px; color: #aaa; }
+
+  .paste-panels { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .paste-panel { flex: 1; min-width: 260px; border: 1px solid #c5cdd8; border-radius: 8px; padding: 14px; background: #f9fafc; }
+  .paste-panel h4 { font-size: 12px; font-weight: 600; color: #1a2540; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 700; }
+  .badge-g3 { background: #c8ddf7; color: #0B1D3A; }
+  .badge-g2 { background: #1a5fa8; color: #fff; }
+  .paste-panel p { font-size: 11px; color: #777; margin-bottom: 8px; line-height: 1.5; }
+  .paste-panel code { background: #e8ecf0; padding: 1px 5px; border-radius: 3px; font-size: 10px; }
+  .paste-panel textarea { width: 100%; height: 90px; font-size: 11px; font-family: 'Courier New', monospace; border: 1px solid #c5cdd8; border-radius: 6px; padding: 7px; background: #fff; color: #1a2540; resize: vertical; }
+  .paste-panel textarea:focus { outline: none; border-color: #1a3060; }
+  .paste-actions { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
+  .feedback { font-size: 11px; color: #0a7a3a; font-weight: 600; }
+
+  /* Tables */
+  .group-section { margin-bottom: 26px; }
+  .group-section:last-child { margin-bottom: 0; }
+
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  col.col-name { width: 22%; }
+  col.col-ini  { width: 12%; }
+  col.col-g3   { width: 13%; }
+  col.col-tot1 { width: 11%; }
+  col.col-g2   { width: 13%; }
+  col.col-tot2 { width: 11%; }
+  col.col-pct  { width: 10%; }
+
+  /* All headers same dark navy */
+  .thead-cols th {
+    background: #0B1D3A; color: #e8ecf0;
+    font-size: 11px; font-weight: 600;
+    padding: 9px 8px; text-align: center;
+    border: 1px solid #1a3060;
+    vertical-align: middle; line-height: 1.4;
+  }
+  .thead-cols th.th-name { text-align: left; padding-left: 12px; }
+
+  /* Data rows — no special cell colors, plain alternating */
+  .data-row td {
+    padding: 7px 8px; font-size: 13px;
+    border: 0.5px solid #d0d8e2; color: #1a2540;
+    text-align: center; vertical-align: middle;
+  }
+  .data-row td.td-name { text-align: left; padding-left: 12px; }
+  .data-row:nth-child(odd)  td { background: #f4f6f8; }
+  .data-row:nth-child(even) td { background: #ffffff; }
+
+  /* G2 first votos totales: italic gray (reference only) */
+  tr.row-g2 td.td-tot1 { color: #999; font-style: italic; }
+  /* Empty cells for inapplicable columns */
+  td.td-blank { background: inherit !important; color: transparent !important; border-color: #e0e6ee; }
+
+  /* Sin Votar — same light gray as odd rows, just a top border */
+  .row-sinvotar td {
+    border-top: 2px solid #c0cad8;
+    background: #eaecf0 !important;
+    color: #666;
+    font-weight: 600;
+  }
+  .row-sinvotar td.td-name { color: #555; }
+
+  /* Suma — slightly darker gray */
+  .row-suma td {
+    border-top: 1px solid #a0afc0;
+    background: #d8dde6 !important;
+    color: #1a2540;
+    font-weight: 700;
+  }
+
+  /* Hide number spinners so text stays truly centered */
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; }
+
+  .vote-input {
+    width: 64px; text-align: center;
+    border: 1px solid transparent; border-radius: 4px;
+    padding: 3px 4px; font-size: 13px;
+    background: transparent; color: #1a2540;
+    cursor: pointer; font-family: inherit;
+  }
+  .vote-input:hover { border-color: #6a8dbd; background: #edf2f9; }
+  .vote-input:focus { border-color: #1a3060; background: #fff; outline: none; box-shadow: 0 0 0 2px rgba(26,48,96,0.15); }
+
+  /* Sin votar editable — fills the cell so it aligns perfectly */
+  .sv-input {
+    width: 100%; text-align: center;
+    border: 1px solid transparent; border-radius: 4px;
+    padding: 3px 4px; font-size: 13px; font-weight: 600;
+    background: transparent; color: #555;
+    cursor: pointer; font-family: inherit;
+  }
+  .sv-input:hover { border-color: #6a8dbd; background: #edf2f9; }
+  .sv-input:focus { outline: none; border-color: #1a3060; background: #fff; box-shadow: 0 0 0 2px rgba(26,48,96,0.15); }
+
+  .del-btn { font-size: 10px; padding: 1px 5px; border-radius: 3px; border: 1px solid #e0a0a0; background: #fff5f5; color: #a33; cursor: pointer; margin-left: 4px; }
+  .del-btn:hover { background: #fde8e8; }
+
+  .add-row { display: flex; gap: 8px; align-items: center; margin-top: 14px; border-top: 1px solid #e0e4ea; padding-top: 14px; flex-wrap: wrap; }
+  .add-row input[type=text] { font-size: 13px; padding: 5px 10px; border: 1px solid #b0bac8; border-radius: 6px; color: #1a2540; flex: 1; min-width: 200px; }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .no-print { display: none !important; }
+    .card { border: none; padding: 0; }
+    .page-title-wrap { border-radius: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="page-title-wrap">
+    <input type="text" id="titulo" value="Resultados Consejos Generales" />
+  </div>
+
+  <div class="card">
+
+    <div class="top-bar no-print">
+      <button class="btn" onclick="togglePaste()">📋 Pegar datos</button>
+      <button class="btn" onclick="window.print()">🖨️ Imprimir / PDF</button>
+      <button class="btn" onclick="descargarImagen()">📷 Descargar imagen</button>
+      <span class="hint">Haz clic en cualquier número para editarlo · Totales y % se calculan solos</span>
+    </div>
+
+    <div class="group-config no-print">
+      <div class="group-config-item">
+        <label>Total G2 (auto):</label>
+        <span class="auto-val" id="autoG2">0</span>
+        <span class="ovr-label">override:</span>
+        <input type="number" id="overrideG2" value="0" min="0" oninput="render()" placeholder="0=auto" />
+      </div>
+      <div class="group-config-item">
+        <label>Total G3 (auto):</label>
+        <span class="auto-val" id="autoG3">0</span>
+        <span class="ovr-label">override:</span>
+        <input type="number" id="overrideG3" value="0" min="0" oninput="render()" placeholder="0=auto" />
+      </div>
+    </div>
+
+    <div class="paste-panels no-print" id="pastePanels" style="display:none">
+      <div class="paste-panel">
+        <h4><span>Paso 1 — Resultados iniciales</span><span class="badge badge-g3">G2 + G3</span></h4>
+        <p>Copia desde Excel <strong>3 columnas</strong>:<br>
+          <code>Nombre</code> · <code>Votos iniciales</code> · <code>Votos asignados G3</code>
+        </p>
+        <textarea id="pasteG3" placeholder="G2 - MAPFRE Generales&#9;38&#9;11&#10;G3 - Solunion Chile&#9;15&#9;2"></textarea>
+        <div class="paste-actions">
+          <button class="btn btn-primary" onclick="applyPasteG3()">Aplicar paso 1</button>
+          <span class="feedback" id="fbG3"></span>
+        </div>
+      </div>
+      <div class="paste-panel">
+        <h4><span>Paso 2 — Votos asignados G2</span><span class="badge badge-g2">Solo G2</span></h4>
+        <p>Después del paso 1, copia desde Excel <strong>2 columnas</strong>:<br>
+          <code>Nombre</code> · <code>Votos asignados G2</code>
+        </p>
+        <textarea id="pasteG2" placeholder="G2 - MAPFRE Generales&#9;38&#10;G2 - Southbridge&#9;34"></textarea>
+        <div class="paste-actions">
+          <button class="btn btn-accent" onclick="applyPasteG2()">Aplicar paso 2</button>
+          <span class="feedback" id="fbG2"></span>
+        </div>
+      </div>
+    </div>
+
+    <div id="tables"></div>
+
+    <div class="add-row no-print">
+      <input type="text" id="newName" placeholder="Ej: G2 - Nuevo Candidato  (el grupo se detecta del nombre)" />
+      <button class="btn btn-primary" onclick="addCandidate()">+ Agregar candidato</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+let nextId = 10;
+// Sin votar editables: solo G3 tabla tiene sv.G3.g3, G2 tabla tiene sv.G2.g2
+let sv = { G2: { g2: 0 }, G3: { g3: 0 } };
+
+function groupFromName(n) {
+  const m = n.match(/^(G\d+)/i);
+  return m ? m[1].toUpperCase() : "G?";
+}
+
+let candidates = [
+  {id:1, name:"G2 - MAPFRE Generales", ini:38, g3:11, g2:38},
+  {id:2, name:"G2 - Southbridge",      ini:34, g3:8,  g2:34},
+  {id:3, name:"G2 - FID",              ini:26, g3:3,  g2:26},
+  {id:4, name:"G2 - Starr",            ini:20, g3:1,  g2:20},
+  {id:5, name:"G2 - Reale",            ini:22, g3:2,  g2:22},
+  {id:6, name:"G2 - Cardif",           ini:27, g3:2,  g2:27},
+  {id:7, name:"G3 - Solunion Chile",   ini:15, g3:1,  g2:0},
+  {id:8, name:"G3 - Contempora",       ini:18, g3:1,  g2:0},
+  {id:9, name:"G3 - Cesce",            ini:15, g3:2,  g2:0},
+].map(c => ({...c, group: groupFromName(c.name)}));
+
+function getAutoTotal(group) {
+  if (group === "G2") return candidates.filter(c=>c.group==="G2").reduce((s,c)=>s+c.g2,0) + sv.G2.g2;
+  return candidates.filter(c=>c.group==="G3").reduce((s,c)=>s+c.g3,0) + sv.G3.g3;
+}
+
+function getTotal(group) {
+  const ov = parseInt(document.getElementById(group==="G2"?"overrideG2":"overrideG3")?.value||0)||0;
+  return ov > 0 ? ov : getAutoTotal(group);
+}
+
+function pct(val, total) {
+  if (!total || val===null || val===undefined) return "";
+  return ((val/total)*100).toFixed(2)+" %";
+}
+
+function getSorted(group) {
+  const key = group==="G2" ? "g2" : "g3";
+  return candidates.filter(c=>c.group===group).sort((a,b)=>b[key]-a[key]);
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function buildTable(group) {
+  const sorted = getSorted(group);
+  const isG2   = group === "G2";
+  const total  = getTotal(group);
+
+  // Sums candidates only
+  const sumTot1cand = sorted.reduce((s,c)=>s+(isG2 ? c.ini+c.g3 : c.g3),0);
+  const sumTot2cand = isG2 ? sorted.reduce((s,c)=>s+c.g2,0) : null;
+
+  // Add sin votar to relevant column
+  const sumTot2withSv = isG2 ? sumTot2cand + sv.G2.g2 : null;
+  const sumTot1withSv = !isG2 ? sumTot1cand + sv.G3.g3 : null;
+
+  const pctSuma = isG2 ? pct(sumTot2withSv, total) : pct(sumTot1withSv, total);
+
+  const rows = sorted.map(c => {
+    const t1val  = isG2 ? c.ini+c.g3 : c.g3;
+    const pctVal = isG2 ? pct(c.g2, total) : pct(c.g3, total);
+
+    // Col tot1: G2 shows gray italic number, G3 shows normal
+    const tot1Cell = `<td class="td-tot1">${t1val}</td>`;
+
+    // Col g2 (editable): G2 only
+    const g2Cell = isG2
+      ? `<td><input class="vote-input" type="number" min="0" value="${c.g2}" onchange="update(${c.id},'g2',this.value)" /></td>`
+      : `<td class="td-blank"></td>`;
+
+    // Col tot2: G2 shows g2 value, G3 blank
+    const tot2Cell = isG2
+      ? `<td class="td-tot2">${c.g2}</td>`
+      : `<td class="td-blank"></td>`;
+
+    return `
+      <tr class="data-row row-${group.toLowerCase()}">
+        <td class="td-name">${esc(c.name)}<button class="del-btn no-print" onclick="del(${c.id})">✕</button></td>
+        <td><input class="vote-input" type="number" min="0" value="${c.ini}" onchange="update(${c.id},'ini',this.value)" /></td>
+        <td><input class="vote-input" type="number" min="0" value="${c.g3}" onchange="update(${c.id},'g3',this.value)" /></td>
+        ${tot1Cell}
+        ${g2Cell}
+        ${tot2Cell}
+        <td>${pctVal}</td>
+      </tr>`;
+  }).join("");
+
+  // Sin Votar row:
+  // G2 table: editable only in col tot2 (Votos totales G2). Col g3 and ini = blank.
+  // G3 table: editable only in col tot1 (Votos totales G3 = votos asignados G3). Col ini = blank.
+  const svG3val = sv.G3.g3;
+  const svG2val = sv.G2.g2;
+
+  let sinVotarRow;
+  if (isG2) {
+    const svPct = pct(svG2val, total);
+    sinVotarRow = `
+      <tr class="data-row row-sinvotar">
+        <td class="td-name">Sin Votar</td>
+        <td class="td-blank"></td>
+        <td class="td-blank"></td>
+        <td class="td-blank"></td>
+        <td class="td-blank"></td>
+        <td><input class="sv-input" type="number" min="0" value="${svG2val}" onchange="updateSv('G2','g2',this.value)" /></td>
+        <td>${svPct}</td>
+      </tr>`;
+  } else {
+    const svPct = pct(svG3val, total);
+    sinVotarRow = `
+      <tr class="data-row row-sinvotar">
+        <td class="td-name">Sin Votar</td>
+        <td class="td-blank"></td>
+        <td><input class="sv-input" type="number" min="0" value="${svG3val}" onchange="updateSv('G3','g3',this.value)" /></td>
+        <td class="td-blank"></td>
+        <td class="td-blank"></td>
+        <td class="td-blank"></td>
+        <td>${svPct}</td>
+      </tr>`;
+  }
+
+  // Suma row:
+  // G2: tot1 blank, tot2 = sumTot2withSv
+  // G3: tot1 = sumTot1withSv, tot2 blank
+  const sumaRow = isG2
+    ? `<tr class="data-row row-suma">
+        <td class="td-name">Suma</td>
+        <td class="td-blank"></td>
+        <td class="td-blank"></td>
+        <td class="td-blank"></td>
+        <td class="td-blank"></td>
+        <td>${sumTot2withSv}</td>
+        <td>${pctSuma}</td>
+       </tr>`
+    : `<tr class="data-row row-suma">
+        <td class="td-name">Suma</td>
+        <td class="td-blank"></td>
+        <td class="td-blank"></td>
+        <td>${sumTot1withSv}</td>
+        <td class="td-blank"></td>
+        <td class="td-blank"></td>
+        <td>${pctSuma}</td>
+       </tr>`;
+
+  return `
+    <div class="group-section">
+      <table>
+        <colgroup>
+          <col class="col-name"><col class="col-ini"><col class="col-g3">
+          <col class="col-tot1"><col class="col-g2"><col class="col-tot2"><col class="col-pct">
+        </colgroup>
+        <thead>
+          <tr class="thead-cols">
+            <th class="th-name">Candidatos</th>
+            <th>Votos<br>iniciales</th>
+            <th>Votos asignados<br>Grupo 3</th>
+            <th>Votos<br>totales</th>
+            <th>Votos asignados<br>Grupo 2</th>
+            <th>Votos<br>totales</th>
+            <th>% según<br>asistentes</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+          ${sinVotarRow}
+          ${sumaRow}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function render() {
+  const groups = [...new Set(candidates.map(c=>c.group))].sort();
+  document.getElementById("tables").innerHTML = groups.map(buildTable).join("");
+  document.getElementById("autoG2").textContent = getAutoTotal("G2");
+  document.getElementById("autoG3").textContent = getAutoTotal("G3");
+}
+
+window.update = function(id, field, val) {
+  const c = candidates.find(x=>x.id===id);
+  if (c) c[field] = parseInt(val)||0;
+  render();
+};
+
+window.updateSv = function(group, col, val) {
+  sv[group][col] = parseInt(val)||0;
+  render();
+};
+
+window.del = function(id) {
+  candidates = candidates.filter(c=>c.id!==id);
+  render();
+};
+
+function addCandidate() {
+  const name = document.getElementById("newName").value.trim();
+  if (!name) return;
+  candidates.push({id:nextId++, name, group:groupFromName(name), ini:0, g3:0, g2:0});
+  document.getElementById("newName").value = "";
+  render();
+}
+
+function togglePaste() {
+  const p = document.getElementById("pastePanels");
+  p.style.display = p.style.display==="none" ? "flex" : "none";
+}
+
+function applyPasteG3() {
+  const lines = document.getElementById("pasteG3").value.trim().split("\n");
+  let count = 0;
+  lines.forEach(line => {
+    const p = line.split("\t");
+    if (!p[0]) return;
+    const name = p[0].trim();
+    const ini  = parseInt((p[1]||"").replace(/\D/g,""))||0;
+    const g3   = parseInt((p[2]||"").replace(/\D/g,""))||0;
+    let c = candidates.find(x=>x.name.toLowerCase()===name.toLowerCase());
+    if (c) { c.ini=ini; c.g3=g3; }
+    else candidates.push({id:nextId++, name, group:groupFromName(name), ini, g3, g2:0});
+    count++;
+  });
+  document.getElementById("pasteG3").value = "";
+  render();
+  showFb("fbG3", `✓ ${count} candidatos aplicados`);
+}
+
+function applyPasteG2() {
+  const lines = document.getElementById("pasteG2").value.trim().split("\n");
+  let matched = 0;
+  lines.forEach(line => {
+    const p = line.split("\t");
+    if (!p[0]) return;
+    const name = p[0].trim();
+    const g2   = parseInt((p[1]||"").replace(/\D/g,""))||0;
+    const c = candidates.find(x=>x.name.toLowerCase()===name.toLowerCase());
+    if (c) { c.g2=g2; matched++; }
+  });
+  document.getElementById("pasteG2").value = "";
+  render();
+  showFb("fbG2", `✓ ${matched} candidatos G2 actualizados`);
+}
+
+function showFb(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  setTimeout(()=>el.textContent="", 3500);
+}
+
+function descargarImagen() {
+  const el = document.querySelector(".container");
+  el.querySelectorAll(".no-print").forEach(n=>n.style.visibility="hidden");
+  html2canvas(el, {scale:2, backgroundColor:"#f0f2f5", useCORS:true}).then(canvas=>{
+    el.querySelectorAll(".no-print").forEach(n=>n.style.visibility="");
+    const a = document.createElement("a");
+    a.download = (document.getElementById("titulo").value.trim().replace(/[^a-z0-9]/gi,"_").substring(0,40)||"resultados")+".png";
+    a.href = canvas.toDataURL("image/png");
+    a.click();
+  });
+}
+
+render();
+</script>
+</body>
+</html>
