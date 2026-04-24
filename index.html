@@ -7,7 +7,7 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; min-height: 100vh; padding: 32px 16px; }
-  .container { max-width: 1100px; margin: 0 auto; }
+  .container { max-width: 980px; margin: 0 auto; }
 
   .page-title-wrap { background: #e2e7ef; border: 1px solid #c5cdd8; border-radius: 8px 8px 0 0; padding: 14px 20px; text-align: center; }
   .page-title-wrap input { font-size: 15px; font-weight: 600; color: #1a2540; text-align: center; background: transparent; border: none; width: 100%; outline: none; cursor: pointer; }
@@ -44,20 +44,26 @@
   .paste-actions { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
   .feedback { font-size: 11px; color: #0a7a3a; font-weight: 600; }
 
-  /* Tables */
   .group-section { margin-bottom: 26px; }
   .group-section:last-child { margin-bottom: 0; }
 
   table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  col.col-name { width: 22%; }
-  col.col-ini  { width: 12%; }
-  col.col-g3   { width: 13%; }
-  col.col-tot1 { width: 11%; }
-  col.col-g2   { width: 13%; }
-  col.col-tot2 { width: 11%; }
-  col.col-pct  { width: 10%; }
 
-  /* All headers same dark navy */
+  /* G2 table: 6 cols */
+  .tbl-g2 col.col-name  { width: 24%; }
+  .tbl-g2 col.col-ini   { width: 13%; }
+  .tbl-g2 col.col-g3r   { width: 14%; }
+  .tbl-g2 col.col-prel  { width: 13%; }
+  .tbl-g2 col.col-totr  { width: 14%; }
+  .tbl-g2 col.col-pct   { width: 12%; }
+
+  /* G3 table: 5 cols */
+  .tbl-g3 col.col-name  { width: 28%; }
+  .tbl-g3 col.col-ini   { width: 15%; }
+  .tbl-g3 col.col-totr  { width: 18%; }
+  .tbl-g3 col.col-g2b   { width: 18%; }
+  .tbl-g3 col.col-pct   { width: 13%; }
+
   .thead-cols th {
     background: #0B1D3A; color: #e8ecf0;
     font-size: 11px; font-weight: 600;
@@ -67,7 +73,6 @@
   }
   .thead-cols th.th-name { text-align: left; padding-left: 12px; }
 
-  /* Data rows — no special cell colors, plain alternating */
   .data-row td {
     padding: 7px 8px; font-size: 13px;
     border: 0.5px solid #d0d8e2; color: #1a2540;
@@ -76,36 +81,20 @@
   .data-row td.td-name { text-align: left; padding-left: 12px; }
   .data-row:nth-child(odd)  td { background: #f4f6f8; }
   .data-row:nth-child(even) td { background: #ffffff; }
+  /* Votos preliminares: gray italic, auto-calculated */
+  td.td-prel { color: #aaa; font-style: italic; }
 
-  /* G2 first votos totales: italic gray (reference only) */
-  tr.row-g2 td.td-tot1 { color: #999; font-style: italic; }
-  /* Empty cells for inapplicable columns */
-  td.td-blank { background: inherit !important; color: transparent !important; border-color: #e0e6ee; }
-
-  /* Sin Votar — same light gray as odd rows, just a top border */
-  .row-sinvotar td {
-    border-top: 2px solid #c0cad8;
-    background: #eaecf0 !important;
-    color: #666;
-    font-weight: 600;
-  }
+  .row-sinvotar td { border-top: 2px solid #c0cad8; background: #eaecf0 !important; color: #666; font-weight: 600; }
   .row-sinvotar td.td-name { color: #555; }
+  .row-suma td { border-top: 1px solid #a0afc0; background: #d8dde6 !important; color: #1a2540; font-weight: 700; }
 
-  /* Suma — slightly darker gray */
-  .row-suma td {
-    border-top: 1px solid #a0afc0;
-    background: #d8dde6 !important;
-    color: #1a2540;
-    font-weight: 700;
-  }
-
-  /* Hide number spinners so text stays truly centered */
+  /* Hide number spinners */
   input[type=number]::-webkit-outer-spin-button,
   input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   input[type=number] { -moz-appearance: textfield; }
 
   .vote-input {
-    width: 64px; text-align: center;
+    width: 72px; text-align: center;
     border: 1px solid transparent; border-radius: 4px;
     padding: 3px 4px; font-size: 13px;
     background: transparent; color: #1a2540;
@@ -114,7 +103,6 @@
   .vote-input:hover { border-color: #6a8dbd; background: #edf2f9; }
   .vote-input:focus { border-color: #1a3060; background: #fff; outline: none; box-shadow: 0 0 0 2px rgba(26,48,96,0.15); }
 
-  /* Sin votar editable — fills the cell so it aligns perfectly */
   .sv-input {
     width: 100%; text-align: center;
     border: 1px solid transparent; border-radius: 4px;
@@ -125,9 +113,9 @@
   .sv-input:hover { border-color: #6a8dbd; background: #edf2f9; }
   .sv-input:focus { outline: none; border-color: #1a3060; background: #fff; box-shadow: 0 0 0 2px rgba(26,48,96,0.15); }
 
-  .del-btn { 
-    font-size: 10px; padding: 1px 5px; border-radius: 3px; 
-    border: 1px solid #e0a0a0; background: #fff5f5; color: #a33; 
+  .del-btn {
+    font-size: 10px; padding: 1px 5px; border-radius: 3px;
+    border: 1px solid #e0a0a0; background: #fff5f5; color: #a33;
     cursor: pointer; margin-left: 4px;
     opacity: 0; transition: opacity 0.15s;
   }
@@ -158,7 +146,7 @@
       <button class="btn" onclick="togglePaste()">📋 Pegar datos</button>
       <button class="btn" onclick="window.print()">🖨️ Imprimir / PDF</button>
       <button class="btn" onclick="descargarImagen()">📷 Descargar imagen</button>
-      <span class="hint">Haz clic en cualquier número para editarlo · Totales y % se calculan solos</span>
+      <span class="hint">Haz clic en cualquier número para editarlo</span>
     </div>
 
     <div class="group-config no-print">
@@ -180,7 +168,7 @@
       <div class="paste-panel">
         <h4><span>Paso 1 — Resultados iniciales</span><span class="badge badge-g3">G2 + G3</span></h4>
         <p>Copia desde Excel <strong>3 columnas</strong>:<br>
-          <code>Nombre</code> · <code>Votos iniciales</code> · <code>Votos asignados G3</code>
+          <code>Nombre</code> · <code>Votos iniciales</code> · <code>Votos recibidos G3</code>
         </p>
         <textarea id="pasteG3" placeholder="G2 - MAPFRE Generales&#9;38&#9;11&#10;G3 - Solunion Chile&#9;15&#9;2"></textarea>
         <div class="paste-actions">
@@ -189,9 +177,12 @@
         </div>
       </div>
       <div class="paste-panel">
-        <h4><span>Paso 2 — Votos asignados G2</span><span class="badge badge-g2">Solo G2</span></h4>
-        <p>Después del paso 1, copia desde Excel <strong>2 columnas</strong>:<br>
-          <code>Nombre</code> · <code>Votos asignados G2</code>
+        <h4><span>Paso 2 — Votos totales recibidos G2</span><span class="badge badge-g2">Solo G2</span></h4>
+        <p>Acepta <strong>dos formatos</strong>:<br>
+          <strong>Excel (tabs):</strong> <code>Nombre</code> · <code>Votos</code><br>
+          <strong>Copia directa de pantalla:</strong> pega el texto tal como viene, ej:<br>
+          <code>G2 - FID 4755.95%G2 - Reale1113.10%...</code><br>
+          El nombre se busca automáticamente.
         </p>
         <textarea id="pasteG2" placeholder="G2 - MAPFRE Generales&#9;38&#10;G2 - Southbridge&#9;34"></textarea>
         <div class="paste-actions">
@@ -213,7 +204,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 let nextId = 10;
-// Sin votar editables: solo G3 tabla tiene sv.G3.g3, G2 tabla tiene sv.G2.g2
 let sv = { G2: { g2: 0 }, G3: { g3: 0 } };
 
 function groupFromName(n) {
@@ -222,16 +212,16 @@ function groupFromName(n) {
 }
 
 let candidates = [
-  {id:1, name:"G2 - MAPFRE Generales", ini:38, g3:11, g2:38},
-  {id:2, name:"G2 - Southbridge",      ini:34, g3:8,  g2:34},
-  {id:3, name:"G2 - FID",              ini:26, g3:3,  g2:26},
-  {id:4, name:"G2 - Starr",            ini:20, g3:1,  g2:20},
-  {id:5, name:"G2 - Reale",            ini:22, g3:2,  g2:22},
-  {id:6, name:"G2 - Cardif",           ini:27, g3:2,  g2:27},
-  {id:7, name:"G3 - Solunion Chile",   ini:15, g3:1,  g2:0},
-  {id:8, name:"G3 - Contempora",       ini:18, g3:1,  g2:0},
-  {id:9, name:"G3 - Cesce",            ini:15, g3:2,  g2:0},
-].map(c => ({...c, group: groupFromName(c.name)}));
+  {id:1, name:"G2 - MAPFRE Generales"},
+  {id:2, name:"G2 - Southbridge"},
+  {id:3, name:"G2 - FID"},
+  {id:4, name:"G2 - Starr"},
+  {id:5, name:"G2 - Reale"},
+  {id:6, name:"G2 - Cardif"},
+  {id:7, name:"G3 - Solunion Chile"},
+  {id:8, name:"G3 - Contempora"},
+  {id:9, name:"G3 - Cesce"},
+].map(c => ({...c, group: groupFromName(c.name), ini:0, g3:0, g2:0}));
 
 function getAutoTotal(group) {
   if (group === "G2") return candidates.filter(c=>c.group==="G2").reduce((s,c)=>s+c.g2,0) + sv.G2.g2;
@@ -257,136 +247,126 @@ function esc(s) {
   return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
-function buildTable(group) {
-  const sorted = getSorted(group);
-  const isG2   = group === "G2";
-  const total  = getTotal(group);
-
-  // Sums candidates only
-  const sumTot1cand = sorted.reduce((s,c)=>s+(isG2 ? c.ini+c.g3 : c.g3),0);
-  const sumTot2cand = isG2 ? sorted.reduce((s,c)=>s+c.g2,0) : null;
-
-  // Add sin votar to relevant column
-  const sumTot2withSv = isG2 ? sumTot2cand + sv.G2.g2 : null;
-  const sumTot1withSv = !isG2 ? sumTot1cand + sv.G3.g3 : null;
-
-  const pctSuma = isG2 ? pct(sumTot2withSv, total) : pct(sumTot1withSv, total);
+function buildTableG2() {
+  const sorted = getSorted("G2");
+  const total  = getTotal("G2");
+  const svVal  = sv.G2.g2;
+  const sumCand = sorted.reduce((s,c)=>s+c.g2, 0);
+  const sumaTotal = sumCand + svVal;
 
   const rows = sorted.map(c => {
-    const t1val  = isG2 ? c.ini+c.g3 : c.g3;
-    const pctVal = isG2 ? pct(c.g2, total) : pct(c.g3, total);
-
-    // Col tot1: G2 shows gray italic number, G3 shows normal
-    const tot1Cell = `<td class="td-tot1">${t1val}</td>`;
-
-    // Col g2 (editable): G2 only
-    const g2Cell = isG2
-      ? `<td><input class="vote-input" type="number" min="0" value="${c.g2}" onchange="update(${c.id},'g2',this.value)" /></td>`
-      : `<td class="td-blank"></td>`;
-
-    // Col tot2: G2 shows g2 value, G3 blank
-    const tot2Cell = isG2
-      ? `<td class="td-tot2">${c.g2}</td>`
-      : `<td class="td-blank"></td>`;
-
+    const prel = c.ini + c.g3; // Votos preliminares = ini + recibidos G3
     return `
-      <tr class="data-row row-${group.toLowerCase()}">
-        <td class="td-name">${esc(c.name)}<button class="del-btn no-print" onclick="del(${c.id})">✕</button></td>
-        <td><input class="vote-input" type="number" min="0" value="${c.ini}" onchange="update(${c.id},'ini',this.value)" /></td>
-        <td><input class="vote-input" type="number" min="0" value="${c.g3}" onchange="update(${c.id},'g3',this.value)" /></td>
-        ${tot1Cell}
-        ${g2Cell}
-        ${tot2Cell}
-        <td>${pctVal}</td>
-      </tr>`;
+    <tr class="data-row row-g2">
+      <td class="td-name">${esc(c.name)}<button class="del-btn no-print" onclick="del(${c.id})">✕</button></td>
+      <td><input class="vote-input" type="number" min="0" value="${c.ini}" onchange="update(${c.id},'ini',this.value)" /></td>
+      <td><input class="vote-input" type="number" min="0" value="${c.g3}"  onchange="update(${c.id},'g3',this.value)" /></td>
+      <td class="td-prel">${prel}</td>
+      <td><input class="vote-input" type="number" min="0" value="${c.g2}"  onchange="update(${c.id},'g2',this.value)" /></td>
+      <td>${pct(c.g2, total)}</td>
+    </tr>`;
   }).join("");
 
-  // Sin Votar row:
-  // G2 table: editable only in col tot2 (Votos totales G2). Col g3 and ini = blank.
-  // G3 table: editable only in col tot1 (Votos totales G3 = votos asignados G3). Col ini = blank.
-  const svG3val = sv.G3.g3;
-  const svG2val = sv.G2.g2;
+  const sinVotarRow = `
+    <tr class="data-row row-sinvotar">
+      <td class="td-name">Sin Votar</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td><input class="sv-input" type="number" min="0" value="${svVal}" onchange="updateSv('G2','g2',this.value)" /></td>
+      <td>${pct(svVal, total)}</td>
+    </tr>`;
 
-  let sinVotarRow;
-  if (isG2) {
-    const svPct = pct(svG2val, total);
-    sinVotarRow = `
-      <tr class="data-row row-sinvotar">
-        <td class="td-name">Sin Votar</td>
-        <td class="td-blank"></td>
-        <td class="td-blank"></td>
-        <td class="td-blank"></td>
-        <td><input class="sv-input" type="number" min="0" value="${svG2val}" onchange="updateSv('G2','g2',this.value)" /></td>
-        <td>${svG2val}</td>
-        <td>${svPct}</td>
-      </tr>`;
-  } else {
-    const svPct = pct(svG3val, total);
-    sinVotarRow = `
-      <tr class="data-row row-sinvotar">
-        <td class="td-name">Sin Votar</td>
-        <td class="td-blank"></td>
-        <td><input class="sv-input" type="number" min="0" value="${svG3val}" onchange="updateSv('G3','g3',this.value)" /></td>
-        <td>${svG3val}</td>
-        <td class="td-blank"></td>
-        <td class="td-blank"></td>
-        <td>${svPct}</td>
-      </tr>`;
-  }
-
-  // Suma row:
-  // G2: tot1 blank, tot2 = sumTot2withSv
-  // G3: tot1 = sumTot1withSv, tot2 blank
-  const sumaRow = isG2
-    ? `<tr class="data-row row-suma">
-        <td class="td-name">Suma</td>
-        <td class="td-blank"></td>
-        <td class="td-blank"></td>
-        <td class="td-blank"></td>
-        <td class="td-blank"></td>
-        <td>${sumTot2withSv}</td>
-        <td>${pctSuma}</td>
-       </tr>`
-    : `<tr class="data-row row-suma">
-        <td class="td-name">Suma</td>
-        <td class="td-blank"></td>
-        <td class="td-blank"></td>
-        <td>${sumTot1withSv}</td>
-        <td class="td-blank"></td>
-        <td class="td-blank"></td>
-        <td>${pctSuma}</td>
-       </tr>`;
+  const sumaRow = `
+    <tr class="data-row row-suma">
+      <td class="td-name">Suma</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>${sumaTotal}</td>
+      <td>${pct(sumaTotal, total)}</td>
+    </tr>`;
 
   return `
     <div class="group-section">
-      <table>
+      <table class="tbl-g2">
         <colgroup>
-          <col class="col-name"><col class="col-ini"><col class="col-g3">
-          <col class="col-tot1"><col class="col-g2"><col class="col-tot2"><col class="col-pct">
+          <col class="col-name"><col class="col-ini">
+          <col class="col-g3r"><col class="col-prel">
+          <col class="col-totr"><col class="col-pct">
         </colgroup>
         <thead>
           <tr class="thead-cols">
             <th class="th-name">Candidatos</th>
             <th>Votos<br>iniciales</th>
-            <th>Votos asignados<br>Grupo 3</th>
-            <th>Votos<br>totales</th>
-            <th>Votos asignados<br>Grupo 2</th>
-            <th>Votos<br>totales</th>
+            <th>Votos recibidos<br>Grupo 3</th>
+            <th>Votos<br>preliminares</th>
+            <th>Votos totales<br>recibidos</th>
             <th>% según<br>asistentes</th>
           </tr>
         </thead>
-        <tbody>
-          ${rows}
-          ${sinVotarRow}
-          ${sumaRow}
-        </tbody>
+        <tbody>${rows}${sinVotarRow}${sumaRow}</tbody>
+      </table>
+    </div>`;
+}
+
+function buildTableG3() {
+  const sorted = getSorted("G3");
+  const total  = getTotal("G3");
+  const svVal  = sv.G3.g3;
+  const sumCand = sorted.reduce((s,c)=>s+c.g3, 0);
+  const sumaTotal = sumCand + svVal;
+
+  const rows = sorted.map(c => `
+    <tr class="data-row row-g3">
+      <td class="td-name">${esc(c.name)}<button class="del-btn no-print" onclick="del(${c.id})">✕</button></td>
+      <td><input class="vote-input" type="number" min="0" value="${c.ini}" onchange="update(${c.id},'ini',this.value)" /></td>
+      <td><input class="vote-input" type="number" min="0" value="${c.g3}"  onchange="update(${c.id},'g3',this.value)" /></td>
+      <td class="td-blank"></td>
+      <td>${pct(c.g3, total)}</td>
+    </tr>`).join("");
+
+  const sinVotarRow = `
+    <tr class="data-row row-sinvotar">
+      <td class="td-name">Sin Votar</td>
+      <td></td>
+      <td><input class="sv-input" type="number" min="0" value="${svVal}" onchange="updateSv('G3','g3',this.value)" /></td>
+      <td class="td-blank"></td>
+      <td>${pct(svVal, total)}</td>
+    </tr>`;
+
+  const sumaRow = `
+    <tr class="data-row row-suma">
+      <td class="td-name">Suma</td>
+      <td></td>
+      <td>${sumaTotal}</td>
+      <td></td>
+      <td>${pct(sumaTotal, total)}</td>
+    </tr>`;
+
+  return `
+    <div class="group-section">
+      <table class="tbl-g3">
+        <colgroup>
+          <col class="col-name"><col class="col-ini">
+          <col class="col-totr"><col class="col-g2b"><col class="col-pct">
+        </colgroup>
+        <thead>
+          <tr class="thead-cols">
+            <th class="th-name">Candidatos</th>
+            <th>Votos<br>iniciales</th>
+            <th>Votos totales<br>recibidos</th>
+            <th>Votos totales recibidos<br>Grupo 2</th>
+            <th>% según<br>asistentes</th>
+          </tr>
+        </thead>
+        <tbody>${rows}${sinVotarRow}${sumaRow}</tbody>
       </table>
     </div>`;
 }
 
 function render() {
-  const groups = [...new Set(candidates.map(c=>c.group))].sort();
-  document.getElementById("tables").innerHTML = groups.map(buildTable).join("");
+  document.getElementById("tables").innerHTML = buildTableG2() + buildTableG3();
   document.getElementById("autoG2").textContent = getAutoTotal("G2");
   document.getElementById("autoG3").textContent = getAutoTotal("G3");
 }
@@ -439,20 +419,44 @@ function applyPasteG3() {
   showFb("fbG3", `✓ ${count} candidatos aplicados`);
 }
 
+function parseSmartG2(text) {
+  // Tab-separated (Excel paste) — find first non-empty numeric value after the name
+  if (text.includes('\t')) {
+    return text.trim().split('\n').map(line => {
+      const parts = line.split('\t').map(s => s.trim());
+      const name = parts[0];
+      if (!name) return null;
+      // Find first column that is a pure integer (skip empty, skip percentages)
+      const voteCol = parts.slice(1).find(p => p !== '' && /^\d+$/.test(p));
+      const votes = voteCol ? parseInt(voteCol) : 0;
+      return {name, votes};
+    }).filter(Boolean);
+  }
+  // Concatenated screen-copy format: "G2 - FID 4755.95%..."
+  const results = [];
+  const regex = /(G\d+\s*-\s*[A-Za-z\s]+?)\s*(\d+)\s*\d+\.\d{2}\s*%/g;
+  let m;
+  while ((m = regex.exec(text)) !== null) {
+    const name = m[1].trim();
+    const votes = parseInt(m[2])||0;
+    if (name) results.push({name, votes});
+  }
+  return results;
+}
+
 function applyPasteG2() {
-  const lines = document.getElementById("pasteG2").value.trim().split("\n");
+  const raw = document.getElementById("pasteG2").value.trim();
+  const items = parseSmartG2(raw);
   let matched = 0;
-  lines.forEach(line => {
-    const p = line.split("\t");
-    if (!p[0]) return;
-    const name = p[0].trim();
-    const g2   = parseInt((p[1]||"").replace(/\D/g,""))||0;
-    const c = candidates.find(x=>x.name.toLowerCase()===name.toLowerCase());
-    if (c) { c.g2=g2; matched++; }
+  items.forEach(({name, votes}) => {
+    const c = candidates.find(x => x.name.toLowerCase() === name.toLowerCase());
+    if (c) { c.g2 = votes; matched++; }
   });
   document.getElementById("pasteG2").value = "";
   render();
-  showFb("fbG2", `✓ ${matched} candidatos G2 actualizados`);
+  showFb("fbG2", matched > 0
+    ? `✓ ${matched} candidatos G2 actualizados`
+    : `⚠ No se encontraron coincidencias — verifica los nombres`);
 }
 
 function showFb(id, msg) {
