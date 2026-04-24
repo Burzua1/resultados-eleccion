@@ -125,7 +125,13 @@
   .sv-input:hover { border-color: #6a8dbd; background: #edf2f9; }
   .sv-input:focus { outline: none; border-color: #1a3060; background: #fff; box-shadow: 0 0 0 2px rgba(26,48,96,0.15); }
 
-  .del-btn { font-size: 10px; padding: 1px 5px; border-radius: 3px; border: 1px solid #e0a0a0; background: #fff5f5; color: #a33; cursor: pointer; margin-left: 4px; }
+  .del-btn { 
+    font-size: 10px; padding: 1px 5px; border-radius: 3px; 
+    border: 1px solid #e0a0a0; background: #fff5f5; color: #a33; 
+    cursor: pointer; margin-left: 4px;
+    opacity: 0; transition: opacity 0.15s;
+  }
+  .data-row:hover .del-btn { opacity: 1; }
   .del-btn:hover { background: #fde8e8; }
 
   .add-row { display: flex; gap: 8px; align-items: center; margin-top: 14px; border-top: 1px solid #e0e4ea; padding-top: 14px; flex-wrap: wrap; }
@@ -310,8 +316,8 @@ function buildTable(group) {
         <td class="td-blank"></td>
         <td class="td-blank"></td>
         <td class="td-blank"></td>
-        <td class="td-blank"></td>
         <td><input class="sv-input" type="number" min="0" value="${svG2val}" onchange="updateSv('G2','g2',this.value)" /></td>
+        <td>${svG2val}</td>
         <td>${svPct}</td>
       </tr>`;
   } else {
@@ -321,7 +327,7 @@ function buildTable(group) {
         <td class="td-name">Sin Votar</td>
         <td class="td-blank"></td>
         <td><input class="sv-input" type="number" min="0" value="${svG3val}" onchange="updateSv('G3','g3',this.value)" /></td>
-        <td class="td-blank"></td>
+        <td>${svG3val}</td>
         <td class="td-blank"></td>
         <td class="td-blank"></td>
         <td>${svPct}</td>
