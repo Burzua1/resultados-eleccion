@@ -182,27 +182,65 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-let nextId = 10;
+let nextId = 100;
 // Sin votar by group — one value each
 let sv = { G2: 0, G3: 0 };
 // Total for G3 % — set from "Suma" row in paste, or auto from sum
 let totalG3override = 0;
 
-function groupFromName(n) {
-  const m = n.match(/^(G\d+)/i);
-  return m ? m[1].toUpperCase() : "G?";
+// Official name → group mapping
+const GROUP_MAP = {
+  "bnp paribas cardif seguros generales s.a.": "G2",
+  "fid chile seguros generales s.a.": "G2",
+  "mapfre compañía de seguros generales de chile s.a.": "G2",
+  "reale chile seguros generales s.a.": "G2",
+  "southbridge compañía de seguros generales s.a.": "G2",
+  "starr international seguros generales s.a.": "G2",
+  "4 life seguros de vida s.a.": "G2",
+  "augustar seguros de vida s.a.": "G2",
+  "penta vida compañía de seguros de vida s.a.": "G2",
+  "zurich chile seguros de vida s.a.": "G2",
+  "cesce chile aseguradora s.a.": "G3",
+  "contempora compañía de seguros generales s.a.": "G3",
+  "solunión chile seguros de crédito s.a.": "G3",
+  "alemana seguros s.a.": "G3",
+  "bupa compañía de seguros de vida s.a.": "G3",
+  "euroamérica": "G3",
+  "help seguros de vida s.a.": "G3",
+  "save bcj compañía de seguros de vida s.a.": "G3",
+};
+
+function groupFromName(name) {
+  const key = name.toLowerCase().trim();
+  // 1. Check official name map
+  if (GROUP_MAP[key]) return GROUP_MAP[key];
+  // 2. Fallback: detect G2/G3 prefix (e.g. "G2 - Southbridge", "G3 - Contempora")
+  const m = name.match(/^(G\d+)\s*[-–]/i);
+  if (m) return m[1].toUpperCase();
+  return "G2";
 }
 
 let candidates = [
-  {id:1, name:"G2 - MAPFRE Generales"},
-  {id:2, name:"G2 - Southbridge"},
-  {id:3, name:"G2 - FID"},
-  {id:4, name:"G2 - Starr"},
-  {id:5, name:"G2 - Reale"},
-  {id:6, name:"G2 - Cardif"},
-  {id:7, name:"G3 - Solunion Chile"},
-  {id:8, name:"G3 - Contempora"},
-  {id:9, name:"G3 - Cesce"},
+  // G2
+  {id:1,  name:"BNP Paribas Cardif Seguros Generales S.A."},
+  {id:2,  name:"FID Chile Seguros Generales S.A."},
+  {id:3,  name:"Mapfre Compañía de Seguros Generales de Chile S.A."},
+  {id:4,  name:"Reale Chile Seguros Generales S.A."},
+  {id:5,  name:"Southbridge Compañía de Seguros Generales S.A."},
+  {id:6,  name:"Starr International Seguros Generales S.A."},
+  {id:7,  name:"4 Life Seguros de Vida S.A."},
+  {id:8,  name:"Augustar Seguros de Vida S.A."},
+  {id:9,  name:"Penta Vida Compañía de Seguros de Vida S.A."},
+  {id:10, name:"Zurich Chile Seguros de Vida S.A."},
+  // G3
+  {id:11, name:"Cesce Chile Aseguradora S.A."},
+  {id:12, name:"Contempora Compañía de Seguros Generales S.A."},
+  {id:13, name:"Solunión Chile Seguros de Crédito S.A."},
+  {id:14, name:"Alemana Seguros S.A."},
+  {id:15, name:"Bupa Compañía de Seguros de Vida S.A."},
+  {id:16, name:"EuroAmérica"},
+  {id:17, name:"Help Seguros de Vida S.A."},
+  {id:18, name:"Save BCJ Compañía de Seguros de Vida S.A."},
 ].map(c => ({...c, group: groupFromName(c.name), g2v:0, g3v:0}));
 
 // G2 total = g2v + g3v
